@@ -4,7 +4,7 @@ interface Props {
     eslogan?: string;
     resumen?:  string;
 }
-export default function Header ( {nombre , eslogan = "Tecnologia para todos", resumen} : Props) {
+export default function Header ( {nombre , eslogan, resumen} : Props) {
     return(
         <header className="mb-6 flex items-center justify-between">
             <div>

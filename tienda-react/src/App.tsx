@@ -7,9 +7,11 @@ import { agregarItem, quitarItem } from "./carrito"
 import formatearPrecio from "./formato"
 import { obtenerProductos } from "./api"
 import SkeletonCard from "./components/SkeletonCard"
+import Practica from "./Practica"
 
 const CLAVE_CARRITO = 'tienda_carrito';
-const nombreTienda = 'Tienda Tech';
+// Tarea 1: Cambias el nombre aquí y se actualiza en el header, el footer
+const nombreTienda = 'Vida Tech';
 export default function App() {
   const [carrito, setCarrito] = useState<ItemCarrito[]>(leerCarrito);
   const [carritoAbierto, setCarritoAbierto] = useState(false);
@@ -143,7 +145,9 @@ export default function App() {
           )
         }
       </section>)}
-      <Footer/>
+      <Practica/>
+      <Footer nombre={nombreTienda}/>
+    
     </main>
   )
 }

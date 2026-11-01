@@ -10,10 +10,13 @@ import SkeletonCard from "./components/SkeletonCard"
 import Practica from "./Practica"
 
 const CLAVE_CARRITO = 'tienda_carrito';
+// Tarea 3: Añadir un estado para los favoritos y mostrarlos
+const CLAVE_FAVORITOS = 'tienda_favoritos';
 // Tarea 1: Cambias el nombre aquí y se actualiza en el header, el footer
 const nombreTienda = 'Vida Tech';
 export default function App() {
   const [carrito, setCarrito] = useState<ItemCarrito[]>(leerCarrito);
+  const [favoritos, setFavoritos] = useState<number[]>(leerFavoritos);
   const [carritoAbierto, setCarritoAbierto] = useState(false);
   const [categoriaActiva, setCategoriaActiva] = useState<string>('todas');
   const [termino, setTermino] = useState('');
@@ -21,7 +24,7 @@ export default function App() {
   const [productos, setProductos] = useState<Producto[]>([]);
   const [estado, setEstado] = useState<EstadoCarga>('cargando');
   const [esRespaldo, setEsRespaldo] = useState(false);
-  const categorias = ['todas', ...new Set(productos.map(p => p.categoria))];
+  const categorias = ['todas', 'favoritos', ...new Set(productos.map(p => p.categoria))];
   const [intento, setIntento] = useState(0);
   useEffect(() => {
     const controlador = new AbortController();
@@ -47,11 +50,19 @@ export default function App() {
       console.warn('No se pudo guardar el carrito', error instanceof Error ? error.message : error);
     }
   }, [carrito]);
+  useEffect( () => {
+    try {
+      localStorage.setItem(CLAVE_FAVORITOS, JSON.stringify(favoritos));
+    } catch (error) {
+      console.warn('No se pudieron guardar los favoritos', error instanceof Error ? error.message : error);
+    }
+  }, [favoritos]);
   
   const busqueda = termino.trim().toLowerCase();  
 
   const visibles = productos.filter( (p) => (
-    (categoriaActiva === 'todas' || p.categoria === categoriaActiva) && 
+    (categoriaActiva === 'todas' ||
+    (categoriaActiva === 'favoritos' ? favoritos.includes(p.id) : p.categoria === categoriaActiva)) && 
     (busqueda === '' || p.nombre.toLowerCase().includes(busqueda) || 
     p.marca.toLowerCase().includes(busqueda))
   ));
@@ -62,6 +73,17 @@ export default function App() {
 
   function agregarAlCarrito(producto : Producto) {
     setCarrito(agregarItem(producto, carrito))
+  }
+  function alternarFavorito(id : number) {
+    setFavoritos((actual) => actual.includes(id) ? actual.filter((f) => f !== id) : [...actual, id]);
+  }
+  function leerFavoritos() : number[] {
+    try {
+      const crudo : unknown = JSON.parse(localStorage.getItem(CLAVE_FAVORITOS) ?? '[]');
+      return Array.isArray(crudo) ? (crudo as number[]) : [];
+    } catch (error) {
+      return [];
+    }
   }
   function leerCarrito() : ItemCarrito[] {
     try {
@@ -84,7 +106,7 @@ export default function App() {
         {
           categorias.map((c) => (
             <button key={c} onClick={() => setCategoriaActiva(c)} 
-            className={`rounded-full border px-3 py-1 text-sm ${ c === categoriaActiva ? 'bg-black text-white' : ''}`}>{c}
+            className={`rounded-full border px-3 py-1 text-sm ${ c === categoriaActiva ? 'bg-black text-white' : ''}`}>{c === 'favoritos' ? `♥ favoritos (${favoritos.length})` : c}
             </button>
           ))
         }
@@ -96,7 +118,8 @@ export default function App() {
             />
       {estado === 'listo' && visibles.length === 0 && (
         <p className="text-gray-500">{
-          busqueda !== '' ? `No encontramos productos para "${termino.trim()}"` : 'No hay productos en esta categoria'
+          busqueda !== '' ? `No encontramos productos para "${termino.trim()}"` :
+          categoriaActiva === 'favoritos' ? 'Aun no marcaste ningun favorito' : 'No hay productos en esta categoria'
         }</p>
       )}
       {
@@ -119,7 +142,8 @@ export default function App() {
       {estado === 'listo' && (
           <section>
           {
-            visibles.map((p) => <ProductCard producto={p} key={p.id} onAgregar={agregarAlCarrito}/>)
+            visibles.map((p) => <ProductCard producto={p} key={p.id} onAgregar={agregarAlCarrito}
+              esFavorito={favoritos.includes(p.id)} onAlternarFavorito={alternarFavorito}/>)
           }
           </section>
         )
@@ -134,7 +158,14 @@ export default function App() {
             carrito.map((item) => (
               <li key={item.id} className="flex items-center justify-between py-1 text-sm">
                 <span>{item.nombre} x {item.cantidad}</span>
-                <button onClick={() => setCarrito(quitarItem(carrito, item.id))} aria-label="Quitar del barrito">X</button>
+                <button
+                  type="button"
+                  onClick={() => setCarrito((actual) => quitarItem(actual, item.id))}
+                  aria-label={`Quitar ${item.nombre} del carrito`}
+                  className="px-2 text-lg leading-none text-gray-500 hover:text-red-600"
+                >
+                  ×
+                </button>
               </li>
             ))
           }

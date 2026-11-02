@@ -42,13 +42,13 @@ export interface Usuario {
     expiraEn: number;
 }
 
-// ---- Opiniones de productos (funcionalidad nueva) ----
+// Opiniones de productos (funcionalidad nueva)
 export interface Opinion {
     id : string;
     autor : string;
     puntuacion : number; // de 1 a 5
     comentario : string;
-    fecha : string;      // fecha en formato ISO
+    fecha : string;      
     propia : boolean;    // true si la escribio el usuario en esta tienda
 }
  

@@ -8,7 +8,7 @@ interface ValorFavoritos {
 const CLAVE_FAVORITOS = 'tienda_favoritos';
 export const FavoritosContext = createContext<ValorFavoritos | null>(null);
 
-// PUNTO 4: lectura con validacion. Solo aceptamos ids numericos enteros y sin repetir.
+// Lectura con validacion. Solo aceptamos ids numericos enteros y sin repetir.
 function leerFavoritos() : number[] {
     try {
         const crudo : unknown = JSON.parse(localStorage.getItem(CLAVE_FAVORITOS) ?? '[]');

@@ -9,7 +9,7 @@ interface Props {
 type Campo = 'puntuacion' | 'comentario';
 type Errores = Partial<Record<Campo, string>>;
 
-// PUNTO 7: una regla de validacion por campo
+// Una regla de validacion por campo
 function validar(puntuacion : string, comentario : string) : Errores {
     const errores : Errores = {};
     const numero = Number(puntuacion);

@@ -5,7 +5,7 @@ interface Props {
     opinion : Opinion;
 }
 
-// PUNTO 10: memo con criterio. Es un componente "puro" (mismos props = mismo resultado),
+// Uso de memo. Es un componente "puro" (mismos props = mismo resultado),
 // se repite en una lista y su unico prop (opinion) mantiene la misma referencia mientras
 // no cambie. Asi, al agregar una opinion nueva solo se dibuja la nueva, no todas.
 function TarjetaOpinion({ opinion } : Props) {

@@ -3,7 +3,7 @@ import type { Opinion } from "../dominio/tipos";
 const BASE = import.meta.env.VITE_API_URL;
 const CLAVE_OPINIONES = 'tienda_opiniones';
 
-// Forma de cada resenia tal como la entrega DummyJSON en GET /products/:id
+// Forma de cada reseña tal como la entrega DummyJSON en GET /products/:id
 interface ResenaAPI {
     rating : number;
     comment : string;
@@ -11,8 +11,8 @@ interface ResenaAPI {
     reviewerName : string;
 }
 
-// PUNTO 5: aqui NO capturamos el error. Lo dejamos subir para que el hook
-// decida si muestra el estado 'error'. Asi nunca hay un catch que se lo "trague".
+// NO capturamos el error. Lo dejamos subir para que el hook
+// decida si muestra el estado 'error'. Asi nunca hay un catch que lo atrape
 export async function obtenerOpinionesApi(idProducto : number, signal? : AbortSignal) : Promise<Opinion[]> {
     const r = await fetch(`${BASE}/products/${idProducto}`, { signal });
     if(!r.ok) throw new Error(`HTTP ${r.status}`);
@@ -27,7 +27,7 @@ export async function obtenerOpinionesApi(idProducto : number, signal? : AbortSi
     }));
 }
 
-// PUNTO 4: validacion. Lo que viene de localStorage es "desconocido",
+// Validacion. Lo que viene de localStorage es "desconocido",
 // asi que comprobamos cada campo antes de confiar en el.
 function esOpinion(x : unknown) : x is Opinion {
     if(typeof x !== 'object' || x === null) return false;

@@ -9,7 +9,7 @@ export function useOpiniones(idProducto : number) {
     const [estado, setEstado] = useState<EstadoCarga>('cargando');
     const [intento, setIntento] = useState(0);
 
-    // PUNTO 4 y 5: efecto con dependencias [idProducto, intento] y funcion de limpieza.
+    // useEffect con dependencias [idProducto, intento] y funcion de limpieza.
     useEffect(() => {
         const controlador = new AbortController();
         async function cargar() {
@@ -45,7 +45,7 @@ export function useOpiniones(idProducto : number) {
         setPropias((actual) => [...actual, nueva]);
     }, [idProducto]);
 
-    // PUNTO 3: estos valores NO son estado, se derivan de lo que ya tenemos
+    // Estos valores NO son estado, se derivan de lo que ya tenemos
     const opiniones = useMemo(
         () => [...propias, ...opinionesApi].sort((a, b) => b.fecha.localeCompare(a.fecha)),
         [propias, opinionesApi]

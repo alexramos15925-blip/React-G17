@@ -9,7 +9,7 @@ interface Props {
     productos : Producto[];
 }
 
-// PUNTO 6: pagina que vive en la ruta /producto/:id/opiniones
+// Pagina que vive en la ruta /producto/:id/opiniones
 export default function Opiniones({ productos } : Props) {
     const { id } = useParams();                 // el :id de la URL llega como texto
     const idProducto = Number(id);
@@ -25,7 +25,7 @@ export default function Opiniones({ productos } : Props) {
             <Link to="/" className="text-sm underline">Volver al catalogo</Link>
             <h1 className="text-2xl font-bold">Opiniones de {titulo}</h1>
 
-            {/* PUNTO 5: los tres estados + boton para reintentar */}
+            {/* Los tres estados + boton para reintentar */}
             {estado === 'cargando' && <p className="text-sm text-gray-500">Cargando opiniones...</p>}
             {estado === 'error' && (
                 <p className="text-sm text-red-600" role="alert">
@@ -34,7 +34,7 @@ export default function Opiniones({ productos } : Props) {
                 </p>
             )}
 
-            {/* PUNTO 2: "> 0 &&" evita que React escriba un 0 en pantalla */}
+            {/* "> 0 &&" evita que React escriba un 0 en pantalla */}
             {opiniones.length > 0 && (
                 <p className="text-sm">
                     Promedio: <b>{promedio.toFixed(1)}</b> / 5 ({opiniones.length} {opiniones.length === 1 ? 'opinion' : 'opiniones'})

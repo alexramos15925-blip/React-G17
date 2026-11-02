@@ -12,7 +12,7 @@ interface Props {
 function ProductCard({ producto, onAgregar, esFavorito, onAlternarFavorito } : Props) {
   const agotado = producto.stock === 0;
   return (
-    // "relative" hace que el corazon (absolute) quede dentro de la tarjeta y no en la esquina de la pagina.
+    // Modificacion y creacion de icono de corazon dentro de la tarjeta y no en la esquina de la pagina.
     // "w-full" deja que el ancho lo decida la grilla de Home.
     <article className={`relative flex h-full w-full flex-col rounded-xl border p-3 sm:p-4 ${agotado ? 'opacity-50' : ''}`}>
         <button

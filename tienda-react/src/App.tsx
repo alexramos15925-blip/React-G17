@@ -9,6 +9,7 @@ import NoEncontrada from "./ui/pages/NoEncontrada"
 import Checkout from "./ui/pages/Checkout"
 import Login from "./ui/pages/Login";
 import RutaProtegida from "./ui/components/RutaProtegida";
+import Opiniones from "./ui/pages/Opiniones";
 
 export default function App() {
 
@@ -46,6 +47,10 @@ export default function App() {
         />
         <Route  path="/producto/:id" element = {
           <Detalle productos={productos}/>
+        }
+        />
+        <Route  path="/producto/:id/opiniones" element = {
+          <Opiniones productos={productos}/>
         }
         />
         <Route element={<RutaProtegida/>}>

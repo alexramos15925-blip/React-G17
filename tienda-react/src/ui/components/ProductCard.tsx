@@ -2,6 +2,7 @@ import formatearPrecio from "../formato";
 import type { Producto } from "../../dominio/tipos";
 import EtiquetaStock from "./EtiquetaStock";
 import { memo } from "react";
+import { Link } from "react-router-dom";
 
 interface Props {
   producto : Producto;
@@ -12,7 +13,7 @@ interface Props {
 function ProductCard({ producto, onAgregar, esFavorito, onAlternarFavorito } : Props) {
   const agotado = producto.stock === 0;
   return (
-    // Modificacion y creacion de icono de corazon dentro de la tarjeta y no en la esquina de la pagina.
+    // "relative" hace que el corazon (absolute) quede dentro de la tarjeta y no en la esquina de la pagina.
     // "w-full" deja que el ancho lo decida la grilla de Home.
     <article className={`relative flex h-full w-full flex-col rounded-xl border p-3 sm:p-4 ${agotado ? 'opacity-50' : ''}`}>
         <button
@@ -33,8 +34,9 @@ function ProductCard({ producto, onAgregar, esFavorito, onAlternarFavorito } : P
         <EtiquetaStock stock={producto.stock}/>
         <p className="text-xs text-gray-500">{(producto.precio * 1.18).toFixed(2)} con IGV</p>
         <p className="mt-2">{formatearPrecio(producto.precio)}</p>
-        {/* "mt-auto" empuja el boton al fondo para que todas las tarjetas de una fila queden alineadas */}
-        <button className="mt-auto w-full rounded-full border px-2 py-1 text-xs sm:text-sm" disabled={producto.stock===0}
+        <Link to={`/producto/${producto.id}/opiniones`} className="mt-auto pt-2 text-xs underline">Ver opiniones</Link>
+        {/* "mt-auto" empuja el enlace y el boton al fondo para que todas las tarjetas de una fila queden alineadas */}
+        <button className="mt-2 w-full rounded-full border px-2 py-1 text-xs sm:text-sm" disabled={producto.stock===0}
         onClick={() => onAgregar(producto)}
         >
           {producto.stock === 0 ? 'Agotado' : 'Agregar al carrito'}

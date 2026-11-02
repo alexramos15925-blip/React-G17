@@ -13,17 +13,22 @@ interface Props {
     estado : EstadoCarga;
 }
 
-// Cambio 3: grilla responsiva. 2 columnas en celular, 3 en tablet, 4 en pantalla grande.
+// Grilla responsive para mostrar los productos juntos en columnas y filas
 const GRILLA = "grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4";
 
 export function Home ( {esRespaldo, OnReintentar, productos, estado} : Props) {
     const {agregar} = useCart();
     const {favoritos, alternar} = useFavoritos();
-    // Cambio 4: la categoria 'favoritos' va despues de 'todas'
+    // la categoria 'favoritos' va despues de 'todas'
     const categorias = ['todas', 'favoritos', ...new Set(productos.map(p => p.categoria))];
     const [categoriaActiva, setCategoriaActiva] = useState<string>('todas');
     const [termino, setTermino] = useState('');
     const busqueda = termino.trim().toLowerCase();
+    // Texto de cada boton de categoria; en favoritos solo muestra el numero si es mayor que 0
+    function textoCategoria(c : string) : string {
+        if(c !== 'favoritos') return c;
+        return favoritos.length > 0 ? `♥ favoritos (${favoritos.length})` : '♥ favoritos';
+    }
     const visibles = useMemo( () => productos.filter( (p) => {
         const coincideCategoria =
             categoriaActiva === 'todas' ||
@@ -54,7 +59,7 @@ export function Home ( {esRespaldo, OnReintentar, productos, estado} : Props) {
                 categorias.map((c) => (
                     <button key={c} onClick={() => setCategoriaActiva(c)}
                     className={`rounded-full border px-3 py-1 text-sm ${ c === categoriaActiva ? 'bg-black text-white' : ''}`}>
-                        {c === 'favoritos' ? `♥ favoritos (${favoritos.length})` : c}
+                        {textoCategoria(c)}
                     </button>
                 ))
                 }

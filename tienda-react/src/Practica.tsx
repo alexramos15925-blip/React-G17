@@ -1,6 +1,6 @@
 import { useState } from "react";
 
-// Tarea 5: el contador de react.dev, funcionando.
+// Tarea 4: el contador de react.dev, funcionando.
 
 export default function Practica() {
   const [count, setCount] = useState(0);

@@ -1,4 +1,4 @@
-import type { Producto } from "./tipos";
+import type { Producto } from "../dominio/tipos";
 
 export const productos: Producto[] = [
   { id: 1, nombre: 'Audífonos inalámbricos2', marca: 'TechSound', precio: 249.9, imagen: 'https://cdn.dummyjson.com/products/images/mobile-accessories/Apple%20Airpods/1.png', stock: 12, categoria : 'audio' },

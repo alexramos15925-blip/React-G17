@@ -1,6 +1,7 @@
 import formatearPrecio from "../formato";
-import type { Producto } from "../tipos";
+import type { Producto } from "../../dominio/tipos";
 import EtiquetaStock from "./EtiquetaStock";
+import { memo } from "react";
 
 interface Props {
   producto : Producto;
@@ -9,10 +10,10 @@ interface Props {
   onAlternarFavorito : (id : number) => void;
 }
 // Tarea 2: Cada tarjeta tiene su boton para favorito
-export default function ProductCard({ producto, onAgregar, esFavorito, onAlternarFavorito } : Props) {
+function ProductCard({ producto, onAgregar, esFavorito, onAlternarFavorito } : Props) {
   const agotado = producto.stock === 0;
   return (
-    <article className={`relative w-64 rounded-xl border p-4 ${agotado ? 'opacity-50' : ''}`}>
+    <article className={`w-64 rounded-xl border p-4 ${agotado && 'opacity-50'}`}>
         <button
           type="button"
           onClick={() => onAlternarFavorito(producto.id)}
@@ -38,3 +39,5 @@ export default function ProductCard({ producto, onAgregar, esFavorito, onAlterna
     </article>
   )
 }
+
+export default memo(ProductCard);

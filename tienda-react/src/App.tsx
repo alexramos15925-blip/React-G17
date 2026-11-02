@@ -1,30 +1,20 @@
 import { useState, useEffect } from "react"
-import Footer from "./components/Footer"
-import Header from "./components/Header"
-import ProductCard from "./components/ProductCard"
-import type {EstadoCarga, ItemCarrito, Producto} from "./tipos"
-import { agregarItem, quitarItem } from "./carrito"
-import formatearPrecio from "./formato"
-import { obtenerProductos } from "./api"
-import SkeletonCard from "./components/SkeletonCard"
-import Practica from "./Practica"
+import type {EstadoCarga, Producto} from "./dominio/tipos"
+import { obtenerProductos } from "./infraestructura/api"
+import Detalle from './ui/pages/Detalle';
+import { Route, Routes } from "react-router-dom"
+import { Home } from "./ui/pages/Home"
+import Layout from "./ui/layout/Layout"
+import NoEncontrada from "./ui/pages/NoEncontrada"
+import Checkout from "./ui/pages/Checkout"
+import Login from "./ui/pages/Login";
+import RutaProtegida from "./ui/components/RutaProtegida";
 
-const CLAVE_CARRITO = 'tienda_carrito';
-// Tarea 3: Añadir un estado para los favoritos y mostrarlos
-const CLAVE_FAVORITOS = 'tienda_favoritos';
-// Tarea 1: Cambias el nombre aquí y se actualiza en el header, el footer
-const nombreTienda = 'Vida Tech';
 export default function App() {
-  const [carrito, setCarrito] = useState<ItemCarrito[]>(leerCarrito);
-  const [favoritos, setFavoritos] = useState<number[]>(leerFavoritos);
-  const [carritoAbierto, setCarritoAbierto] = useState(false);
-  const [categoriaActiva, setCategoriaActiva] = useState<string>('todas');
-  const [termino, setTermino] = useState('');
 
   const [productos, setProductos] = useState<Producto[]>([]);
   const [estado, setEstado] = useState<EstadoCarga>('cargando');
   const [esRespaldo, setEsRespaldo] = useState(false);
-  const categorias = ['todas', 'favoritos', ...new Set(productos.map(p => p.categoria))];
   const [intento, setIntento] = useState(0);
   useEffect(() => {
     const controlador = new AbortController();
@@ -43,142 +33,34 @@ export default function App() {
     cargar();
     return () => controlador.abort();
   },[intento])
-  useEffect( () => {
-    try {
-      localStorage.setItem(CLAVE_CARRITO, JSON.stringify(carrito));
-    } catch (error) {
-      console.warn('No se pudo guardar el carrito', error instanceof Error ? error.message : error);
-    }
-  }, [carrito]);
-  useEffect( () => {
-    try {
-      localStorage.setItem(CLAVE_FAVORITOS, JSON.stringify(favoritos));
-    } catch (error) {
-      console.warn('No se pudieron guardar los favoritos', error instanceof Error ? error.message : error);
-    }
-  }, [favoritos]);
-  
-  const busqueda = termino.trim().toLowerCase();  
-
-  const visibles = productos.filter( (p) => (
-    (categoriaActiva === 'todas' ||
-    (categoriaActiva === 'favoritos' ? favoritos.includes(p.id) : p.categoria === categoriaActiva)) && 
-    (busqueda === '' || p.nombre.toLowerCase().includes(busqueda) || 
-    p.marca.toLowerCase().includes(busqueda))
-  ));
-  
-  useEffect(() => {
-    document.title = `${nombreTienda} - ${visibles.length} resultados`;
-  },[visibles.length]);
-
-  function agregarAlCarrito(producto : Producto) {
-    setCarrito(agregarItem(producto, carrito))
-  }
-  function alternarFavorito(id : number) {
-    setFavoritos((actual) => actual.includes(id) ? actual.filter((f) => f !== id) : [...actual, id]);
-  }
-  function leerFavoritos() : number[] {
-    try {
-      const crudo : unknown = JSON.parse(localStorage.getItem(CLAVE_FAVORITOS) ?? '[]');
-      return Array.isArray(crudo) ? (crudo as number[]) : [];
-    } catch (error) {
-      return [];
-    }
-  }
-  function leerCarrito() : ItemCarrito[] {
-    try {
-      const crudo : unknown = JSON.parse(localStorage.getItem(CLAVE_CARRITO) ?? '[]');
-      return Array.isArray(crudo) ? (crudo as ItemCarrito[]) : [];
-    } catch (error) {
-      return [];
-    }
-  }
-  const unidades = carrito.reduce((suma, i) => suma + i.cantidad, 0);
-  const total = carrito.reduce((suma, i) => suma + i.precio * i.cantidad, 0);
-
   
   return (
-    <main className="mx-auto max-w-5xl p-6">
-      <Header nombre={nombreTienda} eslogan="Una Vida Tecnologica" 
-      resumen={`🛒 ${unidades} productos - ${formatearPrecio(total)}`}/>
-      {/* PROPS */}
-      <nav className="mb-4 flex gap-2" aria-label="Filtrar por categoria">
-        {
-          categorias.map((c) => (
-            <button key={c} onClick={() => setCategoriaActiva(c)} 
-            className={`rounded-full border px-3 py-1 text-sm ${ c === categoriaActiva ? 'bg-black text-white' : ''}`}>{c === 'favoritos' ? `♥ favoritos (${favoritos.length})` : c}
-            </button>
-          ))
+    <Routes>
+      <Route element = {
+        <Layout/>
+      }>
+        <Route path="/" element = {
+          <Home esRespaldo={esRespaldo} OnReintentar={() => {setIntento(intento + 1); setEstado('cargando')}}
+          productos={productos} estado={estado}/>
         }
-      </nav>
-      <input type="search" placeholder="Buscar por nombre o marca..." 
-            className="mb-4 w-64 rounded-lg border px-3 py-2 text-sm"
-            value={termino} aria-label="Buscar productos"
-            onChange={(e) => setTermino(e.target.value)}
-            />
-      {estado === 'listo' && visibles.length === 0 && (
-        <p className="text-gray-500">{
-          busqueda !== '' ? `No encontramos productos para "${termino.trim()}"` :
-          categoriaActiva === 'favoritos' ? 'Aun no marcaste ningun favorito' : 'No hay productos en esta categoria'
-        }</p>
-      )}
-      {
-        esRespaldo && (
-          <p className="mb-4 rounded-lg border border-orange-300 bg-orange-500 p-2 text-sm">
-            Mostrando el catalogo Local, no pudimos conectar con la tienda.
-            <button className="ml-2 underline" onClick={() => {setIntento(intento + 1); setEstado('cargando')}}>Reintentar</button>
-          </p>
-        )
-      }
-      <p className="mb-4 text-sm text-gray-500">{visibles.length} productos</p>
-      {estado === 'cargando' && (
-        <section className="flex flex-wrap gap-4">
-          {Array.from({length : 8}).map((_, indice) => (
-            <SkeletonCard key={indice}/>
-          ))}
-        </section>
-      )}
-      {estado === 'error' && <p className="text-red-600">No pudimos cargar los productos</p>}
-      {estado === 'listo' && (
-          <section>
-          {
-            visibles.map((p) => <ProductCard producto={p} key={p.id} onAgregar={agregarAlCarrito}
-              esFavorito={favoritos.includes(p.id)} onAlternarFavorito={alternarFavorito}/>)
-          }
-          </section>
-        )
-      }
-      <button className="mb-4 text-sm" onClick={() => setCarritoAbierto(!carritoAbierto)}>{carritoAbierto ? 'Ocultar carrito' : 'Ver carrito'}</button>
-      
-      {carritoAbierto && (<section className="mb-6 rounded-xl border p-4">
-        <h2 className="font-semibold">Tu carrito</h2>
-        {carrito.length === 0 && <p className="text-sm text-gray-500">Tu carrito esta vacio</p>}
-        <ul>
-          {
-            carrito.map((item) => (
-              <li key={item.id} className="flex items-center justify-between py-1 text-sm">
-                <span>{item.nombre} x {item.cantidad}</span>
-                <button
-                  type="button"
-                  onClick={() => setCarrito((actual) => quitarItem(actual, item.id))}
-                  aria-label={`Quitar ${item.nombre} del carrito`}
-                  className="px-2 text-lg leading-none text-gray-500 hover:text-red-600"
-                >
-                  ×
-                </button>
-              </li>
-            ))
-          }
-        </ul>
-        {
-          carrito.length > 0 && (
-            <button className="mt-2 text-sm underline" onClick={() => setCarrito([])}>Vaciar carrito</button>
-          )
+        />
+        <Route  path="/producto/:id" element = {
+          <Detalle productos={productos}/>
         }
-      </section>)}
-      <Practica/>
-      <Footer nombre={nombreTienda}/>
-    
-    </main>
+        />
+        <Route element={<RutaProtegida/>}>
+          <Route  path="/checkout" element = {
+            <Checkout/>
+          }
+          />
+        </Route>
+        <Route path="/login" element = {
+          <Login/>
+        }/>
+      </Route>
+      <Route path="*" element ={
+          <NoEncontrada/>
+      }/>
+    </Routes>
   )
 }
